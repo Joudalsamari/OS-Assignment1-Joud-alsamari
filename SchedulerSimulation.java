@@ -34,7 +34,10 @@ class Process implements Runnable {
     private int priority;
     // Feature 2: Context Switch Counter
     private int contextSwitches = 0;
-    // Constructor to initialize the process with name, burst time, and time quantum
+// Feature 3: Waiting Time Counter
+    private int waitingTime = 0;
+
+
     public Process(String name, int burstTime, int timeQuantum, int priority) {
         this.name = name;
         this.burstTime = burstTime;
@@ -46,7 +49,10 @@ class Process implements Runnable {
     // Feature 2: Method to increment context switches
     public void incrementSwitches() {
         this.contextSwitches++; }
-    
+
+    // Feature 3: Add to waiting time
+    public void addWait(int time) { this.waitingTime += time; }
+
         // This method will be called when the thread for this process is started
     @Override
     public void run() {
@@ -158,6 +164,8 @@ class Process implements Runnable {
     }
     // Feature 2: Getter
     public int getContextSwitches() { return contextSwitches; }
+
+    public int getWaitingTime() { return waitingTime; }
 }
 
 
@@ -263,6 +271,13 @@ public class SchedulerSimulation {
             
             //Feature 2
             processMap.get(currentThread).incrementSwitches();
+
+            // Feature 3: Calculate Waiting Time for others in queue
+            int currentRunTime = Math.min(timeQuantum, processMap.get(currentThread).getRemainingTime());
+            for (Thread t : processQueue) {
+                processMap.get(t).addWait(currentRunTime);
+            }
+
             // Start the thread, which will run the process for one time quantum
             currentThread.start();
 
