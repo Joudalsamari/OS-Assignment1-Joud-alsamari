@@ -1,7 +1,7 @@
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 
 // ANSI Color Codes for enhanced terminal output
@@ -32,7 +32,8 @@ class Process implements Runnable {
 
     // Feature 1: Process Priority property
     private int priority;
-
+    // Feature 2: Context Switch Counter
+    private int contextSwitches = 0;
     // Constructor to initialize the process with name, burst time, and time quantum
     public Process(String name, int burstTime, int timeQuantum, int priority) {
         this.name = name;
@@ -42,7 +43,11 @@ class Process implements Runnable {
         this.priority = priority; // Initialize priority
     }
 
-    // This method will be called when the thread for this process is started
+    // Feature 2: Method to increment context switches
+    public void incrementSwitches() {
+        this.contextSwitches++; }
+    
+        // This method will be called when the thread for this process is started
     @Override
     public void run() {
         // Simulate running for either the time quantum or remaining time, whichever is
@@ -151,7 +156,10 @@ class Process implements Runnable {
     public int getPriority() {
         return priority;
     }
+    // Feature 2: Getter
+    public int getContextSwitches() { return contextSwitches; }
 }
+
 
 public class SchedulerSimulation {
     public static void main(String[] args) {
@@ -239,6 +247,7 @@ public class SchedulerSimulation {
             int queueCount = 0;
             for (Thread thread : processQueue) {
                 Process process = processMap.get(thread);
+                
                 if (queueCount > 0)
                     System.out.print(Colors.WHITE + " → " + Colors.RESET);
                 // Feature 1: Displaying the process priority in the Ready Queue output
@@ -251,7 +260,9 @@ public class SchedulerSimulation {
             }
             System.out.println(Colors.BRIGHT_WHITE + "]" + Colors.RESET);
             System.out.println(Colors.BOLD + Colors.MAGENTA + "└" + "─".repeat(79) + Colors.RESET + "\n");
-
+            
+            //Feature 2
+            processMap.get(currentThread).incrementSwitches();
             // Start the thread, which will run the process for one time quantum
             currentThread.start();
 
